@@ -1,4 +1,5 @@
 import axios from 'axios';
+import FroalaEditor from 'froala-editor';
 class PluginsLoader {
     constructor(options, notificator) {
         this.options = options;
