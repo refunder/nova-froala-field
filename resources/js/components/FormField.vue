@@ -34,8 +34,13 @@ export default {
             });
         }
         window.froala = FroalaEditor;
-        window.do = 'dee';
-        new PluginsLoader(this.options, this.$toasted).registerPlugins().then((data) => {
+
+        const pluginLoader = new PluginsLoader(this.options, this.$toasted);
+
+        Promise.all([
+            pluginLoader.registerCustomButtons(),
+            pluginLoader.registerPlugins()
+        ]).then((data) => {
             this.loading = false;
         })
     },

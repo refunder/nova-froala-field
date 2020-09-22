@@ -1,7 +1,25 @@
+import axios from 'axios';
 class PluginsLoader {
     constructor(options, notificator) {
         this.options = options;
         this.notificator = notificator;
+    }
+
+    async registerCustomButtons() {
+        if (this.options.customToolbarButtons) {
+            let asyncRequests = Object.values(this.options.customToolbarButtons).map(path => {
+                return new Promise(async resolve => {
+                    try {
+                        let data = await axios.get(window.location.origin + path);
+                        resolve(eval(`const c = ${data.data};c;`)(FroalaEditor));
+                    } catch (e) {
+                        this.errorCustomButtonLoadNotification(path, e);
+                    }
+                });
+            });
+
+            return await Promise.all(asyncRequests);
+        }
     }
 
     async registerPlugins() {
@@ -13,34 +31,37 @@ class PluginsLoader {
 
         if (allButtons.includes('embedly')) {
             try {
-                await import(
+                await
+                import (
                     /* webpackChunkName: "embedly.min" */
                     'froala-editor/js/third_party/embedly.min'
                 );
             } catch (e) {
-                this.errorPluginLoadNotification('Embed.ly')
+                this.errorPluginLoadNotification('Embed.ly');
             }
         }
 
         if (allButtons.includes('spellChecker')) {
             try {
-                await import(
+                await
+                import (
                     /* webpackChunkName: "spell_checker.min" */
                     'froala-editor/js/third_party/spell_checker.min'
                 );
             } catch (e) {
-                this.errorPluginLoadNotification('SCAYT Web SpellChecker')
+                this.errorPluginLoadNotification('SCAYT Web SpellChecker');
             }
         }
 
         if (this.options.tuiEnable) {
             try {
-                await import(
+                await
+                import (
                     /* webpackChunkName: "image_tui.min" */
                     'froala-editor/js/third_party/image_tui.min.js'
                 );
             } catch (e) {
-                this.errorPluginLoadNotification('TUI Advanced Image Editor')
+                this.errorPluginLoadNotification('TUI Advanced Image Editor');
             }
         }
 
@@ -52,7 +73,7 @@ class PluginsLoader {
             'toolbarButtons',
             'toolbarButtonsMD',
             'toolbarButtonsSM',
-            'toolbarButtonsXS'
+            'toolbarButtonsXS',
         ];
 
         let buttons = [];
@@ -64,11 +85,15 @@ class PluginsLoader {
         return buttons.flat(2);
     }
 
+    errorCustomButtonLoadNotification(path, e) {
+        this.notificator.show(`Something wrong when loading ${path}.` + `Message: ${e.message}`, {
+            type: 'error',
+        });
+    }
+
     errorPluginLoadNotification(name) {
         this.notificator.show(
-            `Something wrong with ${name} plugin load. `
-            + 'Perhaps you forgot to publish it.',
-            { type: 'error' }
+            `Something wrong with ${name} plugin load. ` + 'Perhaps you forgot to publish it.', { type: 'error' }
         );
     }
 }
