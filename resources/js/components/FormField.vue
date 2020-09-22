@@ -18,6 +18,7 @@ import { FormField, HandlesValidationErrors } from 'laravel-nova';
 
 import MediaConfigurator from '../MediaConfigurator';
 import PluginsLoader from '../PluginsLoader';
+import FroalaEditor from 'froala-editor';
 
 export default {
     mixins: [HandlesValidationErrors, FormField],
@@ -32,7 +33,8 @@ export default {
                 value.apply(this);
             });
         }
-
+        window.froala = FroalaEditor;
+        window.do = 'dee';
         new PluginsLoader(this.options, this.$toasted).registerPlugins().then((data) => {
             this.loading = false;
         })
